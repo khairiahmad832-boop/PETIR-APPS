@@ -147,7 +147,7 @@ function downloadFormalReport() {
     ws_data.push(["Level MG =", "cm"]);
     ws_data.push([""]); ws_data.push(["Dibuat Oleh,", "", "", "Diperiksa Oleh,", "", "", "Diketahui Oleh,"]);
     ws_data.push(["", "", "", "", "", "", ""]); ws_data.push(["", "", "", "", "", "", ""]);
-    ws_data.push(["( Operator QC )", "", "", "( Foreman QC )", "", "", "( SPV QC )"]);
+    ws_data.push(["( Operator Fryer )", "", "", "( Sect. Prod )", "", "", "( Supervisor )"]);
 
     const wb = XLSX.utils.book_new(); const ws = XLSX.utils.aoa_to_sheet(ws_data);
     ws['!merges'] = [ { s: {r:0, c:0}, e: {r:0, c:3} }, { s: {r:3, c:0}, e: {r:3, c:8} }, { s: {r:9, c:2}, e: {r:9, c:5} }, { s: {r:9, c:6}, e: {r:9, c:8} }, { s: {r:ws_data.length-4, c:0}, e: {r:ws_data.length-4, c:2} }, { s: {r:ws_data.length-4, c:3}, e: {r:ws_data.length-4, c:5} } ];
@@ -202,7 +202,7 @@ function downloadPDFReport() {
     // Footer
     let finalY = doc.lastAutoTable.finalY + 10;
     doc.setDrawColor(0); doc.setFillColor(240, 240, 240); doc.rect(14, finalY, 182, 35, 'FD');
-    doc.setFontSize(8); doc.setFont("helvetica", "bold"); doc.text("STANDARD PROSES (PETIR AUTO CHECK):", 16, finalY + 5);
+    doc.setFontSize(8); doc.setFont("helvetica", "bold"); doc.text("STANDARD PROSES (AUTO CHECK):", 16, finalY + 5);
     doc.setFont("helvetica", "normal");
     doc.text(`1. Suhu Fryer MID : ${TEMP_LOW} - ${TEMP_HIGH} °C`, 16, finalY + 12);
     doc.text("2. Suhu Fryer IN  : ........ °C", 16, finalY + 17);
@@ -214,7 +214,7 @@ function downloadPDFReport() {
     let ttdY = finalY + 45;
     doc.text("Dibuat Oleh,", 30, ttdY); doc.text("Diperiksa Oleh,", 90, ttdY); doc.text("Diketahui Oleh,", 150, ttdY);
     doc.setFont("helvetica", "bold");
-    doc.text("( Operator QC )", 30, ttdY + 20); doc.text("( Foreman QC )", 90, ttdY + 20); doc.text("( SPV QC )", 150, ttdY + 20);
+    doc.text("( Operator Fryer )", 30, ttdY + 20); doc.text("( Sect. Produksi )", 90, ttdY + 20); doc.text("( Supervisor )", 150, ttdY + 20);
 
     doc.save(`Laporan_PETIR_PDF_${currentDateKey}.pdf`);
     Swal.fire({ icon: 'success', title: 'PDF Siap!', text: 'Laporan PDF berhasil di-generate.' });
