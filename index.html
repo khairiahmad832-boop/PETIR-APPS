@@ -30,7 +30,8 @@
             <i class="fas fa-times close-btn" onclick="toggleMenu()"></i>
         </div>
         <div class="menu-item active" onclick="switchTab('live')"><i class="fas fa-chart-line"></i> Live Monitor</div>
-        <div class="menu-item" onclick="downloadFormalReport()"><i class="fas fa-file-excel"></i> Laporan Resmi QC</div>
+        <div class="menu-item" onclick="downloadFormalReport()"><i class="fas fa-file-excel"></i> Laporan Excel</div>
+        <div class="menu-item" onclick="downloadPDFReport()"><i class="fas fa-file-pdf"></i> Laporan PDF</div>
         <div class="menu-item" onclick="openSettings()"><i class="fas fa-sliders-h"></i> Konfigurasi Suhu</div>
         <div class="menu-item" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Keluar</div>
         <div class="server-status"><span class="dot"></span> Online System</div>
@@ -92,6 +93,8 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdn.sheetjs.com/xlsx-0.20.0/package/dist/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
     <script src="script.js"></script>
     <script>if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js'));}</script>
 </body>
