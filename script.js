@@ -2,7 +2,6 @@ const ADMIN_ID = "admin";
 const ADMIN_PASS = "qc123"; 
 const BLYNK_TOKEN = "_Uc_SlWvcnKwlaBGhY5e0nv-_K6J4YGY";
 const VIRTUAL_PIN = "V0";
-// URL SCRIPT BARU ANDA
 const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzXnP7_5PSGM-UgE9wu8SaN6zyD5sCfso3FFWsITGroP8zTDgWxv6Z-RDIhE9OnMiWWzA/exec";
 
 let TEMP_HIGH = parseFloat(localStorage.getItem('conf_high')) || 190.0;
@@ -11,6 +10,7 @@ let sessionData = [];
 let chartInstance = null;
 let currentDateKey = new Date().toISOString().slice(0, 10); 
 
+// === 1. CLOUD SYNC ===
 async function loadCloudHistory() {
     document.getElementById('statusBadge').innerText = "SINKRONISASI CLOUD...";
     document.getElementById('statusBadge').className = "badge badge-loading";
@@ -24,23 +24,21 @@ async function loadCloudHistory() {
         });
         chartInstance.update(); calculateStats();
         document.getElementById('statusBadge').innerText = "DATA TERHUBUNG";
-    } catch (error) {
-        console.error(error); document.getElementById('statusBadge').innerText = "CLOUD OFFLINE";
-    }
+    } catch (error) { console.error(error); document.getElementById('statusBadge').innerText = "CLOUD OFFLINE"; }
 }
 
+// === 2. SETTINGS ===
 function openSettings() { document.getElementById('inputHigh').value = TEMP_HIGH; document.getElementById('inputLow').value = TEMP_LOW; document.getElementById('settingsOverlay').style.display = 'flex'; }
 function closeSettings() { document.getElementById('settingsOverlay').style.display = 'none'; }
 function saveSettings() {
-    const h = parseFloat(document.getElementById('inputHigh').value);
-    const l = parseFloat(document.getElementById('inputLow').value);
+    const h = parseFloat(document.getElementById('inputHigh').value); const l = parseFloat(document.getElementById('inputLow').value);
     if (!isNaN(h) && !isNaN(l) && h > l) {
         TEMP_HIGH = h; TEMP_LOW = l; localStorage.setItem('conf_high', h); localStorage.setItem('conf_low', l);
-        Swal.fire({icon: 'success', title: 'Tersimpan!', text: `Alarm: ${l}°C - ${h}°C`, timer: 2000, showConfirmButton: false});
-        closeSettings();
+        Swal.fire({icon: 'success', title: 'Tersimpan!', text: `Alarm: ${l}°C - ${h}°C`, timer: 2000, showConfirmButton: false}); closeSettings();
     } else { Swal.fire('Error', 'Batas Atas harus lebih tinggi dari Bawah.', 'error'); }
 }
 
+// === 3. LOGIN ===
 function attemptLogin() {
     const u = document.getElementById('userid').value; const p = document.getElementById('password').value;
     if (u === ADMIN_ID && p === ADMIN_PASS) {
@@ -51,6 +49,7 @@ function attemptLogin() {
 function logout() { localStorage.removeItem('petir_session'); location.reload(); }
 function checkSession() { if (localStorage.getItem('petir_session') === 'true') { document.getElementById('loginOverlay').style.display = 'none'; initDashboard(); } }
 
+// === 4. DASHBOARD ===
 function initDashboard() {
     document.getElementById('datePicker').value = currentDateKey;
     const ctx = document.getElementById('tempChart').getContext('2d');
@@ -63,6 +62,7 @@ function initDashboard() {
     setInterval(fetchBlynkData, 2000); setInterval(updateClock, 1000);
 }
 
+// === 5. REALTIME FETCH ===
 async function fetchBlynkData() {
     try {
         const response = await fetch(`https://blynk.cloud/external/api/get?token=${BLYNK_TOKEN}&${VIRTUAL_PIN}`);
@@ -73,8 +73,9 @@ async function fetchBlynkData() {
 
 function updateUI(temp) {
     const display = document.getElementById('tempValue'); const badge = document.getElementById('statusBadge');
-    const timeStr = new Date().toLocaleTimeString();
+    const timeStr = new Date().toLocaleTimeString('id-ID', { hour12: false }); 
     display.innerText = temp.toFixed(1); badge.className = "badge";
+    
     if (temp >= TEMP_HIGH) { display.style.color = "#ef4444"; badge.classList.add("badge-danger"); badge.innerText = `BAHAYA: > ${TEMP_HIGH}°C`; }
     else if (temp <= TEMP_LOW && temp > 40) { display.style.color = "#facc15"; badge.classList.add("badge-warning"); badge.innerText = `WARNING: < ${TEMP_LOW}°C`; }
     else if (temp <= 40) { display.style.color = "#94a3b8"; badge.classList.add("badge-loading"); badge.innerText = "MODE: DINGIN"; }
@@ -97,15 +98,77 @@ function calculateStats() {
 
 function updateClock() { document.getElementById('clock').innerText = new Date().toLocaleTimeString(); }
 function toggleMenu() { document.getElementById('sidebar').classList.toggle('open'); }
-function downloadReport() {
-    if (sessionData.length === 0) { Swal.fire('Info', 'Belum ada data.', 'info'); return; }
-    const ws = XLSX.utils.json_to_sheet(sessionData); const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "Data QC"); XLSX.writeFile(wb, `Laporan_PETIR_QC_${currentDateKey}.xlsx`);
-}
+
 function exportChart() {
     const canvas = document.getElementById('tempChart'); const link = document.createElement('a');
     link.download = `Grafik_PETIR_${new Date().toISOString().slice(0,19).replace(/:/g,"-")}.png`;
     link.href = canvas.toDataURL('image/png', 1.0); link.click();
     Swal.fire({ icon: 'success', title: 'Tersimpan!', text: 'Grafik berhasil disimpan ke Galeri.', timer: 1500, showConfirmButton: false, toast: true, position: 'top-end' });
 }
+
+// === 6. FITUR LAPORAN RESMI (UPDATE: DATA PER JAM) ===
+function downloadFormalReport() {
+    if (sessionData.length === 0) { Swal.fire('Info', 'Belum ada data sesi ini.', 'info'); return; }
+
+    // Filter DATA PER JAM (Menit 00)
+    let filteredData = []; let lastLoggedTime = "";
+    sessionData.forEach(d => {
+        let parts = d.time.split(":"); 
+        let menit = parseInt(parts[1]); 
+        let timeKey = parts[0] + ":00"; // Ambil Jam saja
+
+        // LOGIC BARU: Hanya ambil jika menit == 0 (Tepat Jam)
+        if (menit === 0 && timeKey !== lastLoggedTime) { 
+            filteredData.push(d); 
+            lastLoggedTime = timeKey; 
+        }
+    });
+
+    // Fallback: Jika data sedikit (belum sejam), tampilkan semua biar tidak kosong
+    if (filteredData.length === 0) {
+        // Opsi: Tetap ambil semua data ATAU beri peringatan
+        // Disini saya set fallback ambil data per 15 menit sebagai cadangan jika data jam kosong
+        sessionData.forEach(d => {
+             let parts = d.time.split(":"); 
+             if(parseInt(parts[1]) % 15 === 0) filteredData.push(d);
+        });
+        // Jika masih kosong juga (baru nyala 1 menit), ambil raw data
+        if(filteredData.length === 0) filteredData = sessionData;
+    }
+
+    const ws_data = [
+        ["PT INDOFOOD CBP SUKSES MAKMUR Tbk", "", "", "", "", "", "", "", "", "Kode Form : PROD - 158"],
+        ["DIVISI NOODLE - PABRIK CIBITUNG", "", "", "", "", "", "", "", "", "No. Terbitan : 1.0"],
+        [""], ["LAPORAN MONITORING PROSES FRYER & COOLER (SISTEM PETIR)", "", "", "", "", "", "", "", "", ""], [""], 
+        ["Line : PETIR-01", "", "Tanggal : " + new Date().toLocaleDateString('id-ID'), "", "", "", "Flavour : 1. ...................."], 
+        ["Regu : A / B / C", "", "Operator : " + ADMIN_ID, "", "", "", "          2. ...................."],
+        ["Shift : I / II / III", "", "", "", "", "", "          3. ...................."], [""], 
+        ["Jam", "RPM", "FRYER (Monitoring CCP)", "", "", "", "Bukaan Valve", "", "", "Waktu", "COOLER", "Jenis Cemaran"],
+        ["", "Cutter", "Suhu In", "Suhu Mid", "Suhu Out", "Level MG", "In (%)", "Mid (%)", "Out (%)", "Goreng", "Waktu Cooling", ""],
+        ["", "", "(°C)", "(°C)", "(°C)", "(cm)", "", "", "", "(detik)", "(detik)", ""]
+    ];
+
+    filteredData.forEach(data => {
+        let jamMenit = data.time.substring(0, 5); 
+        ws_data.push([jamMenit, "", "", data.temp, "", "", "", "", "", "", "", ""]);
+    });
+
+    ws_data.push([""]); ws_data.push(["Standard Proses :", "", "", "", "", "", "Bukaan Valve", "In =", "%"]);
+    ws_data.push(["RPM Cutter =", "", "", "", "", "", "", "Mid =", "%"]);
+    ws_data.push(["Suhu Fryer", "In =", "°C", "", "", "", "", "Out =", "%"]);
+    ws_data.push(["(PETIR AUTO)", "Mid =", TEMP_LOW + "-" + TEMP_HIGH, "", "", "", "Waktu goreng =", "detik"]);
+    ws_data.push(["", "Out =", "°C", "", "", "", "Waktu cooling =", "detik"]);
+    ws_data.push(["Level MG =", "cm"]);
+    ws_data.push([""]); ws_data.push(["Dibuat Oleh,", "", "", "Diperiksa Oleh,", "", "", "Diketahui Oleh,"]);
+    ws_data.push(["", "", "", "", "", "", ""]); ws_data.push(["", "", "", "", "", "", ""]);
+    ws_data.push(["( Operator QC )", "", "", "( Foreman QC )", "", "", "( SPV QC )"]);
+
+    const wb = XLSX.utils.book_new(); const ws = XLSX.utils.aoa_to_sheet(ws_data);
+    ws['!merges'] = [ { s: {r:0, c:0}, e: {r:0, c:3} }, { s: {r:3, c:0}, e: {r:3, c:8} }, { s: {r:9, c:2}, e: {r:9, c:5} }, { s: {r:9, c:6}, e: {r:9, c:8} }, { s: {r:ws_data.length-4, c:0}, e: {r:ws_data.length-4, c:2} }, { s: {r:ws_data.length-4, c:3}, e: {r:ws_data.length-4, c:5} } ];
+    ws['!cols'] = [ { wch: 8 }, { wch: 10 }, { wch: 8 }, { wch: 8 }, { wch: 8 }, { wch: 8 }, { wch: 8 }, { wch: 8 }, { wch: 8 }, { wch: 10 }, { wch: 12 }, { wch: 15 } ];
+    XLSX.utils.book_append_sheet(wb, ws, "Laporan QC");
+    XLSX.writeFile(wb, `Laporan_PETIR_${currentDateKey}.xlsx`);
+    Swal.fire({ icon: 'success', title: 'Berhasil', text: 'Laporan Per Jam berhasil diunduh!' });
+}
+
 checkSession();
