@@ -12,6 +12,7 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+
     <div id="loginOverlay" class="login-overlay">
         <div class="login-box">
             <h2><i class="fas fa-bolt fa-beat" style="color:#facc15;"></i> PROJECT PETIR</h2>
@@ -29,7 +30,7 @@
             <i class="fas fa-times close-btn" onclick="toggleMenu()"></i>
         </div>
         <div class="menu-item active" onclick="switchTab('live')"><i class="fas fa-chart-line"></i> Live Monitor</div>
-        <div class="menu-item" onclick="downloadReport()"><i class="fas fa-file-excel"></i> Laporan PETIR</div>
+        <div class="menu-item" onclick="downloadFormalReport()"><i class="fas fa-file-excel"></i> Laporan Resmi QC</div>
         <div class="menu-item" onclick="openSettings()"><i class="fas fa-sliders-h"></i> Konfigurasi Suhu</div>
         <div class="menu-item" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Keluar</div>
         <div class="server-status"><span class="dot"></span> Online System</div>
@@ -90,7 +91,7 @@
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.0/package/dist/xlsx.full.min.js"></script>
     <script src="script.js"></script>
     <script>if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js'));}</script>
 </body>
