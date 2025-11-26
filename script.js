@@ -161,7 +161,7 @@ function downloadFormalReport() {
     ws_data.push(["Level MG =", "cm"]);
     ws_data.push([""]); ws_data.push(["Dibuat Oleh,", "", "", "Diperiksa Oleh,", "", "", "Diketahui Oleh,"]);
     ws_data.push(["", "", "", "", "", "", ""]); ws_data.push(["", "", "", "", "", "", ""]);
-    ws_data.push(["( Operator QC )", "", "", "( Foreman QC )", "", "", "( SPV QC )"]);
+    ws_data.push(["( Operator Fryer )", "", "", "( Prod. Section )", "", "", "( Prod. SPV  )"]);
 
     const wb = XLSX.utils.book_new(); const ws = XLSX.utils.aoa_to_sheet(ws_data);
     ws['!merges'] = [ { s: {r:0, c:0}, e: {r:0, c:3} }, { s: {r:3, c:0}, e: {r:3, c:8} }, { s: {r:9, c:2}, e: {r:9, c:5} }, { s: {r:9, c:6}, e: {r:9, c:8} }, { s: {r:ws_data.length-4, c:0}, e: {r:ws_data.length-4, c:2} }, { s: {r:ws_data.length-4, c:3}, e: {r:ws_data.length-4, c:5} } ];
