@@ -15,7 +15,13 @@
 
     <div id="loginOverlay" class="login-overlay">
         <div class="login-box">
-            <h2><i class="fas fa-bolt fa-beat" style="color:#facc15;"></i> PROJECT PETIR</h2>
+            <h2>
+                <svg class="petir-logo-svg petir-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M12 2l9 4.5v9l-9 4.5-9-4.5v-9z"/>
+                  <path d="M13 7l-3 6h3l-3 6" fill="currentColor" stroke="none"/>
+                </svg> 
+                PROJECT PETIR
+            </h2>
             <p style="font-size: 0.8rem; color: #94a3b8; margin-bottom: 20px;">Pemantauan Efektif Terintegrasi<br>Instan Real-time</p>
             <input type="text" id="userid" placeholder="ID Operator" autocomplete="off">
             <input type="password" id="password" placeholder="Kode Akses">
@@ -26,12 +32,18 @@
 
     <div class="sidebar" id="sidebar">
         <div class="brand">
-            <div><i class="fas fa-bolt petir-icon"></i> PETIR QC</div>
+            <div style="display: flex; align-items: center;">
+                <svg class="petir-logo-svg petir-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M12 2l9 4.5v9l-9 4.5-9-4.5v-9z"/>
+                  <path d="M13 7l-3 6h3l-3 6" fill="currentColor" stroke="none"/>
+                </svg>
+                PETIR QC
+            </div>
             <i class="fas fa-times close-btn" onclick="toggleMenu()"></i>
         </div>
         <div class="menu-item active" onclick="switchTab('live')"><i class="fas fa-chart-line"></i> Live Monitor</div>
-        <div class="menu-item" onclick="downloadFormalReport()"><i class="fas fa-file-excel"></i> Laporan Excel</div>
-        <div class="menu-item" onclick="downloadPDFReport()"><i class="fas fa-file-pdf"></i> Laporan PDF</div>
+        <div class="menu-item" onclick="showIntervalPopup('excel')"><i class="fas fa-file-excel"></i> Laporan Excel</div>
+        <div class="menu-item" onclick="showIntervalPopup('pdf')"><i class="fas fa-file-pdf"></i> Laporan PDF</div>
         <div class="menu-item" onclick="openSettings()"><i class="fas fa-sliders-h"></i> Konfigurasi Suhu</div>
         <div class="menu-item" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Keluar</div>
         <div class="server-status"><span class="dot"></span> Online System</div>
@@ -87,6 +99,21 @@
                 <button onclick="saveSettings()" style="background:#4ade80; color:#064e3b;">SIMPAN</button>
                 <button onclick="closeSettings()" style="background:#ef4444; color:white;">BATAL</button>
             </div>
+        </div>
+    </div>
+
+    <div id="intervalOverlay" class="login-overlay" style="display: none;">
+        <div class="login-box" style="width: 350px;">
+            <h3><i class="fas fa-file-alt" style="color:#facc15;"></i> PILIH INTERVAL LAPORAN</h3>
+            <p style="font-size: 0.9rem; color: #94a3b8; margin-bottom: 20px;">Pilih seberapa sering data suhu akan dicatat dalam laporan.</p>
+            
+            <div class="interval-options">
+                <button class="interval-btn" onclick="generateReportWithInterval(15)">PER 15 MENIT<br><span style="font-size:0.7rem">(Detail Tinggi)</span></button>
+                <button class="interval-btn" onclick="generateReportWithInterval(30)">PER 30 MENIT<br><span style="font-size:0.7rem">(Sedang)</span></button>
+                <button class="interval-btn" onclick="generateReportWithInterval(60)">PER 1 JAM<br><span style="font-size:0.7rem">(Ringkas)</span></button>
+            </div>
+            
+            <button onclick="closeIntervalPopup()" style="background:#ef4444; color:white; margin-top: 20px;">BATAL</button>
         </div>
     </div>
 
