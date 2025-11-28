@@ -12,108 +12,82 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-
     <div id="loginOverlay" class="login-overlay">
         <div class="login-box">
             <h2>
-                <svg class="petir-logo-svg petir-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M12 2l9 4.5v9l-9 4.5-9-4.5v-9z"/>
-                  <path d="M13 7l-3 6h3l-3 6" fill="currentColor" stroke="none"/>
-                </svg> 
+                <svg class="petir-logo-svg petir-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l9 4.5v9l-9 4.5-9-4.5v-9z"/><path d="M13 7l-3 6h3l-3 6" fill="currentColor" stroke="none"/></svg> 
                 PROJECT PETIR
             </h2>
-            <p style="font-size: 0.8rem; color: #94a3b8; margin-bottom: 20px;">Pemantauan Efektif Terintegrasi<br>Instan Real-time</p>
-            <input type="text" id="userid" placeholder="ID Operator" autocomplete="off">
-            <input type="password" id="password" placeholder="Kode Akses">
-            <button onclick="attemptLogin()">AKSES SISTEM</button>
-            <p id="loginError" class="error-msg"></p>
+            <input type="text" id="userid" placeholder="ID Operator"><input type="password" id="password" placeholder="Kode Akses">
+            <button onclick="attemptLogin()">AKSES SISTEM</button><p id="loginError" class="error-msg"></p>
         </div>
     </div>
 
     <div class="sidebar" id="sidebar">
         <div class="brand">
-            <div style="display: flex; align-items: center;">
-                <svg class="petir-logo-svg petir-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M12 2l9 4.5v9l-9 4.5-9-4.5v-9z"/>
-                  <path d="M13 7l-3 6h3l-3 6" fill="currentColor" stroke="none"/>
-                </svg>
-                PETIR QC
-            </div>
+            <div style="display:flex;align-items:center"><svg class="petir-logo-svg petir-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l9 4.5v9l-9 4.5-9-4.5v-9z"/><path d="M13 7l-3 6h3l-3 6" fill="currentColor" stroke="none"/></svg> PETIR QC</div>
             <i class="fas fa-times close-btn" onclick="toggleMenu()"></i>
         </div>
         <div class="menu-item active" onclick="switchTab('live')"><i class="fas fa-chart-line"></i> Live Monitor</div>
-        <div class="menu-item" onclick="showIntervalPopup('excel')"><i class="fas fa-file-excel"></i> Laporan Excel</div>
-        <div class="menu-item" onclick="showIntervalPopup('pdf')"><i class="fas fa-file-pdf"></i> Laporan PDF</div>
-        <div class="menu-item" onclick="openSettings()"><i class="fas fa-sliders-h"></i> Konfigurasi Suhu</div>
+        <div class="menu-item" onclick="showShiftPopup('excel')"><i class="fas fa-file-excel"></i> Laporan Shift (Excel)</div>
+        <div class="menu-item" onclick="showShiftPopup('pdf')"><i class="fas fa-file-pdf"></i> Laporan Shift (PDF)</div>
+        <div class="menu-item" onclick="openSettings()"><i class="fas fa-sliders-h"></i> Konfigurasi Sensor</div>
         <div class="menu-item" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Keluar</div>
         <div class="server-status"><span class="dot"></span> Online System</div>
     </div>
 
     <div class="main-content">
         <div class="header">
-            <div class="header-left">
-                <i class="fas fa-bars mobile-menu-btn" onclick="toggleMenu()"></i>
-                <h2>DASHBOARD PETIR</h2>
-            </div>
-            <div class="header-right">
-                <input type="date" id="datePicker" class="date-picker">
-                <div id="clock" class="clock">00:00:00</div>
-            </div>
+            <div class="header-left"><i class="fas fa-bars mobile-menu-btn" onclick="toggleMenu()"></i><h2>DASHBOARD PETIR</h2></div>
+            <div class="header-right"><input type="date" id="datePicker" class="date-picker"><div id="clock" class="clock">00:00:00</div></div>
         </div>
-
         <div class="dashboard-grid">
             <div class="card main-card">
-                <h3>SUHU REAL-TIME</h3>
-                <div class="gauge-wrapper">
-                    <div id="tempValue" class="digital-temp">--.-</div>
-                    <span class="unit">°C</span>
-                </div>
-                <div id="statusBadge" class="badge badge-loading">MENUNGGU SINYAL...</div>
+                <h3>SUHU MID (CCP)</h3>
+                <div class="gauge-wrapper"><div id="tempValue" class="digital-temp">--.-</div><span class="unit">°C</span></div>
+                <div id="statusBadge" class="badge badge-loading">MENUNGGU...</div>
             </div>
             <div class="card chart-card">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                    <h3 style="margin:0;">GRAFIK PERGERAKAN SUHU</h3>
-                    <button onclick="exportChart()" class="btn-camera"><i class="fas fa-camera"></i> Foto</button>
-                </div>
+                <div style="display:flex;justify-content:space-between;margin-bottom:15px"><h3>GRAFIK 3 SENSOR</h3><button onclick="exportChart()" class="btn-camera"><i class="fas fa-camera"></i> Foto</button></div>
                 <div class="chart-container"><canvas id="tempChart"></canvas></div>
             </div>
             <div class="card stats-card">
-                <h3>STATISTIK HARIAN</h3>
-                <div class="stat-row"><span>Maksimum:</span> <span id="maxTemp" class="val">--°</span></div>
-                <div class="stat-row"><span>Minimum:</span> <span id="minTemp" class="val">--°</span></div>
-                <div class="stat-row"><span>Rata-rata:</span> <span id="avgTemp" class="val">--°</span></div>
+                <h3>STATISTIK MID</h3>
+                <div class="stat-row"><span>Max:</span> <span id="maxTemp" class="val">--°</span></div>
+                <div class="stat-row"><span>Min:</span> <span id="minTemp" class="val">--°</span></div>
+                <div class="stat-row"><span>Avg:</span> <span id="avgTemp" class="val">--°</span></div>
             </div>
         </div>
     </div>
 
     <div id="settingsOverlay" class="login-overlay" style="display: none;">
-        <div class="login-box">
-            <h3><i class="fas fa-cog fa-spin" style="color:#facc15;"></i> KONFIGURASI PETIR</h3>
-            <div style="text-align: left; margin-top: 20px;">
-                <label style="color:#ccc; font-size:0.8rem; display:block; margin-bottom:5px;">Batas Atas (Overheat) °C:</label>
-                <input type="number" id="inputHigh" placeholder="Default: 190">
-                <label style="color:#ccc; font-size:0.8rem; display:block; margin-bottom:5px; margin-top:10px;">Batas Bawah (Drop) °C:</label>
-                <input type="number" id="inputLow" placeholder="Default: 160">
+        <div class="login-box" style="width: 400px; text-align: left;">
+            <h3 style="text-align: center; color:#facc15;">KONFIGURASI SENSOR</h3>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px;">
+                <div style="grid-column: span 2; color: cyan; font-size: 0.9rem; border-bottom: 1px solid #333;">SENSOR IN</div>
+                <label class="lbl">Max:</label> <input type="number" id="inH"><label class="lbl">Min:</label> <input type="number" id="inL">
+                <div style="grid-column: span 2; color: lime; font-size: 0.9rem; border-bottom: 1px solid #333; margin-top:5px;">SENSOR MID (CCP)</div>
+                <label class="lbl">Max:</label> <input type="number" id="midH"><label class="lbl">Min:</label> <input type="number" id="midL">
+                <div style="grid-column: span 2; color: orange; font-size: 0.9rem; border-bottom: 1px solid #333; margin-top:5px;">SENSOR OUT</div>
+                <label class="lbl">Max:</label> <input type="number" id="outH"><label class="lbl">Min:</label> <input type="number" id="outL">
             </div>
             <div style="display:flex; gap:10px; margin-top: 20px;">
-                <button onclick="saveSettings()" style="background:#4ade80; color:#064e3b;">SIMPAN</button>
+                <button onclick="saveSettings()" style="background:#4ade80; color:#000;">SIMPAN & SYNC</button>
                 <button onclick="closeSettings()" style="background:#ef4444; color:white;">BATAL</button>
             </div>
         </div>
     </div>
 
-    <div id="intervalOverlay" class="login-overlay" style="display: none;">
-        <div class="login-box" style="width: 350px;">
-            <h3><i class="fas fa-file-alt" style="color:#facc15;"></i> PILIH INTERVAL LAPORAN</h3>
-            <p style="font-size: 0.9rem; color: #94a3b8; margin-bottom: 20px;">Pilih seberapa sering data suhu akan dicatat dalam laporan.</p>
-            
+    <div id="shiftOverlay" class="login-overlay" style="display: none;">
+        <div class="login-box">
+            <h3><i class="fas fa-clock" style="color:#facc15;"></i> PILIH DURASI SHIFT</h3>
+            <p style="color:#bbb; font-size:0.9rem;">Laporan mengambil data per jam.</p>
             <div class="interval-options">
-                <button class="interval-btn" onclick="generateReportWithInterval(15)">PER 15 MENIT<br><span style="font-size:0.7rem">(Detail Tinggi)</span></button>
-                <button class="interval-btn" onclick="generateReportWithInterval(30)">PER 30 MENIT<br><span style="font-size:0.7rem">(Sedang)</span></button>
-                <button class="interval-btn" onclick="generateReportWithInterval(60)">PER 1 JAM<br><span style="font-size:0.7rem">(Ringkas)</span></button>
+                <button class="interval-btn" onclick="generateShiftReport(5)">5 JAM</button>
+                <button class="interval-btn" onclick="generateShiftReport(7)">7 JAM</button>
+                <button class="interval-btn" onclick="generateShiftReport(10)">10 JAM</button>
             </div>
-            
-            <button onclick="closeIntervalPopup()" style="background:#ef4444; color:white; margin-top: 20px;">BATAL</button>
+            <button onclick="document.getElementById('shiftOverlay').style.display='none'" style="background:#ef4444; margin-top:20px;">BATAL</button>
         </div>
     </div>
 
