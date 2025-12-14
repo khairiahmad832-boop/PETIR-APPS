@@ -3,91 +3,183 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SISTEM PETIR - QC Monitoring</title>
-    <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#0f172a">
-    <link rel="apple-touch-icon" href="icon-192.png">
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <title>PETIR V17 HYPER-PRO</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+
+    <audio id="alarmSound" src="https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3" preload="auto"></audio>
+
     <div id="loginOverlay" class="login-overlay">
-        <div class="login-box">
-            <h2>
-                <svg class="petir-logo-svg petir-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l9 4.5v9l-9 4.5-9-4.5v-9z"/><path d="M13 7l-3 6h3l-3 6" fill="currentColor" stroke="none"/></svg> 
-                PROJECT PETIR
-            </h2>
-            <input type="text" id="userid" placeholder="ID Operator"><input type="password" id="password" placeholder="Kode Akses">
-            <button onclick="attemptLogin()">AKSES SISTEM</button><p id="loginError" class="error-msg"></p>
+        <div class="login-box glass-panel">
+            <div class="login-header">
+                <i class="fas fa-bolt fa-3x" style="color:#facc15;"></i>
+                <h2>PETIR V17</h2>
+                <p>HYPER-PRO MONITORING</p>
+            </div>
+            <input type="text" id="userid" placeholder="ID Operator">
+            <input type="password" id="password" placeholder="Password">
+            <button onclick="attemptLogin()" class="btn-login">LOGIN SYSTEM</button>
+            <p id="loginError" class="error-msg"></p>
         </div>
     </div>
 
-    <div class="sidebar" id="sidebar">
+    <nav class="sidebar" id="sidebar">
         <div class="brand">
-            <div style="display:flex;align-items:center"><svg class="petir-logo-svg petir-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l9 4.5v9l-9 4.5-9-4.5v-9z"/><path d="M13 7l-3 6h3l-3 6" fill="currentColor" stroke="none"/></svg> PETIR QC</div>
-            <i class="fas fa-times close-btn" onclick="toggleMenu()"></i>
+            <i class="fas fa-bolt" style="color:#facc15;"></i> <span>PETIR QC</span>
         </div>
-        <div class="menu-item active" onclick="switchTab('live')"><i class="fas fa-chart-line"></i> Live Monitor</div>
-        <div class="menu-item" onclick="showShiftPopup('excel')"><i class="fas fa-file-excel"></i> Laporan Shift (Excel)</div>
-        <div class="menu-item" onclick="showShiftPopup('pdf')"><i class="fas fa-file-pdf"></i> Laporan Shift (PDF)</div>
-        <div class="menu-item" onclick="openSettings()"><i class="fas fa-sliders-h"></i> Konfigurasi Sensor</div>
-        <div class="menu-item" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Keluar</div>
-        <div class="server-status"><span class="dot"></span> Online System</div>
+
+        <div class="user-profile">
+            <div class="avatar"><i class="fas fa-user-shield"></i></div>
+            <div class="user-info">
+                <h4 id="displayUser">Administrator</h4>
+                <small id="sessionTime">00:00:00</small>
+            </div>
+        </div>
+
+        <ul class="nav-links">
+            <li class="nav-header">MAIN MENU</li>
+            <li onclick="switchTab('dashboard')" class="active"><i class="fas fa-tv"></i> <span>Command Center</span></li>
+            <li onclick="switchTab('simulation')"><i class="fas fa-microchip"></i> <span>AI Simulasi</span></li>
+            
+            <li class="nav-header">DATA & REPORT</li>
+            <li onclick="toggleSubmenu('submenu-laporan')" class="has-submenu">
+                <div style="display:flex; justify-content:space-between; width:100%">
+                    <span><i class="fas fa-print"></i> Laporan Produksi</span>
+                    <i class="fas fa-chevron-down arrow"></i>
+                </div>
+            </li>
+            <ul id="submenu-laporan" class="submenu">
+                <li onclick="showShiftPopup('pdf')"><i class="fas fa-file-pdf"></i> Laporan PDF (Resmi)</li>
+                <li onclick="showShiftPopup('excel')"><i class="fas fa-file-excel"></i> Laporan Excel</li>
+                <li onclick="exportCSV()"><i class="fas fa-file-csv"></i> Export Raw CSV</li>
+            </ul>
+
+            <li class="nav-header">SYSTEM</li>
+            <li onclick="openSettings()"><i class="fas fa-cogs"></i> Konfigurasi Alat</li>
+            <li onclick="toggleSound()" id="btnSound"><i class="fas fa-volume-mute"></i> <span>Suara Alarm: OFF</span></li>
+            <li onclick="toggleFullscreen()"><i class="fas fa-expand"></i> <span>Kiosk Mode</span></li>
+            <li onclick="toggleTheme()" id="themeBtn"><i class="fas fa-moon"></i> <span>Mode Gelap</span></li>
+            <li onclick="logout()" style="color:#ef4444; margin-top:20px;"><i class="fas fa-power-off"></i> Shutdown</li>
+        </ul>
+
+        <div class="sys-health">
+            <div class="ping-dot" id="connectionDot"></div>
+            <div class="health-info">
+                <span>System Status</span>
+                <small id="connectionText">Initializing...</small>
+            </div>
+        </div>
+    </nav>
+
+    <main class="content">
+        <div class="top-bar">
+            <i class="fas fa-bars mobile-toggle" onclick="toggleSidebar()"></i>
+            <div class="digital-clock" id="clock">--:--:--</div>
+        </div>
+
+        <div id="tab-dashboard" class="tab-content active">
+            <div class="grid-container">
+                <div class="card main-card glass" id="cardMid">
+                    <div class="card-header">
+                        <h3>SUHU PROSES (MID)</h3>
+                        <span class="live-indicator"><i class="fas fa-circle"></i> LIVE</span>
+                    </div>
+                    <div class="gauge-display">
+                        <div id="mainTemp" class="temp-big skeleton">--.-</div>
+                        <span class="unit">°C</span>
+                        <span id="trendMid" class="trend-indicator flat"><i class="fas fa-minus"></i></span>
+                    </div>
+                    <div id="sysStatus" class="status-pill skeleton-pill">Loading Data...</div>
+                    <div id="configInfo" class="target-info">Target: --</div>
+                </div>
+
+                <div class="card chart-card glass">
+                    <div class="card-header">
+                        <h3>ANALISIS REAL-TIME</h3>
+                        <div class="legend-box">
+                            <span style="color:#38bdf8">● IN</span>
+                            <span style="color:#facc15">● MID</span>
+                            <span style="color:#ef4444">● OUT</span>
+                        </div>
+                    </div>
+                    <div class="chart-wrapper">
+                        <canvas id="liveChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="card stats-card glass">
+                    <h3>PARAMETER ZONE</h3>
+                    <div class="stat-row">
+                        <span><i class="fas fa-arrow-right-to-bracket"></i> INPUT</span>
+                        <div style="text-align:right;">
+                            <strong id="valIn" class="val-small skeleton-text">--°</strong>
+                            <small id="trendIn" class="trend-small">--</small>
+                        </div>
+                    </div>
+                    <div class="stat-row">
+                        <span><i class="fas fa-arrow-right-from-bracket"></i> OUTPUT</span>
+                        <div style="text-align:right;">
+                            <strong id="valOut" class="val-small skeleton-text">--°</strong>
+                            <small id="trendOut" class="trend-small">--</small>
+                        </div>
+                    </div>
+                    
+                    <div class="maintenance-box">
+                        <small>Engine Run Hours</small>
+                        <div class="progress-bar"><div class="fill" id="maintBar" style="width:0%"></div></div>
+                        <div class="maint-info">
+                            <span id="maintHours">0 Jam</span>
+                            <span style="color:#facc15">Next Service: 500 Jam</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="tab-simulation" class="tab-content">
+            <div class="card glass">
+                <h2><i class="fas fa-brain"></i> AI Predictive Analysis</h2>
+                <div class="sim-controls">
+                    <div class="sim-row"><span>Suhu Aktual:</span> <strong id="simRealTemp" style="color:#facc15">-- °C</strong></div>
+                    <input type="range" id="simSlider" min="-20" max="20" value="0" oninput="runSimulation()">
+                    <div class="sim-row"><span>Offset Simulasi:</span> <strong id="simOffsetVal">+0 °C</strong></div>
+                </div>
+                <div class="sim-result" id="simResultBox">
+                    <h1 id="simFinalTemp">-- °C</h1>
+                    <p id="simStatus">Geser slider untuk memprediksi hasil penggorengan.</p>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <div id="settingsOverlay" class="modal">
+        <div class="modal-content glass">
+            <h3><i class="fas fa-sliders-h"></i> KALIBRASI ALARM</h3>
+            <div class="form-grid">
+                <div><label>Batas Atas (High)</label><input type="number" id="inputHigh"></div>
+                <div><label>Batas Bawah (Low)</label><input type="number" id="inputLow"></div>
+            </div>
+            <div class="btn-row">
+                <button onclick="saveConfig()" class="btn-save">SIMPAN & SYNC CLOUD</button>
+                <button onclick="closeSettings()" class="btn-cancel">BATAL</button>
+            </div>
+        </div>
     </div>
 
-    <div class="main-content">
-        <div class="header">
-            <div class="header-left"><i class="fas fa-bars mobile-menu-btn" onclick="toggleMenu()"></i><h2>DASHBOARD PETIR</h2></div>
-            <div class="header-right"><input type="date" id="datePicker" class="date-picker"><div id="clock" class="clock">00:00:00</div></div>
-        </div>
-        <div class="dashboard-grid">
-            <div class="card main-card">
-                <h3>SUHU MID (CCP)</h3>
-                <div class="gauge-wrapper"><div id="tempValue" class="digital-temp">--.-</div><span class="unit">°C</span></div>
-                <div id="statusBadge" class="badge badge-loading">MENUNGGU...</div>
+    <div id="shiftOverlay" class="modal">
+        <div class="modal-content glass">
+            <h3><i class="fas fa-file-export"></i> EXPORT DATA</h3>
+            <p>Pilih rentang waktu laporan:</p>
+            <div class="btn-grid">
+                <button onclick="generateReport(5)" class="btn-opt">5 JAM</button>
+                <button onclick="generateReport(8)" class="btn-opt">8 JAM (SHIFT)</button>
+                <button onclick="generateReport(12)" class="btn-opt">12 JAM</button>
             </div>
-            <div class="card chart-card">
-                <div style="display:flex;justify-content:space-between;margin-bottom:15px"><h3>GRAFIK 3 SENSOR</h3><button onclick="exportChart()" class="btn-camera"><i class="fas fa-camera"></i> Foto</button></div>
-                <div class="chart-container"><canvas id="tempChart"></canvas></div>
-            </div>
-            <div class="card stats-card">
-                <h3>STATISTIK MID</h3>
-                <div class="stat-row"><span>Max:</span> <span id="maxTemp" class="val">--°</span></div>
-                <div class="stat-row"><span>Min:</span> <span id="minTemp" class="val">--°</span></div>
-                <div class="stat-row"><span>Avg:</span> <span id="avgTemp" class="val">--°</span></div>
-            </div>
-        </div>
-    </div>
-
-    <div id="settingsOverlay" class="login-overlay" style="display: none;">
-        <div class="login-box" style="width: 400px; text-align: left;">
-            <h3 style="text-align: center; color:#facc15;">KONFIGURASI SENSOR</h3>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px;">
-                <div style="grid-column: span 2; color: cyan; font-size: 0.9rem; border-bottom: 1px solid #333;">SENSOR IN</div>
-                <label class="lbl">Max:</label> <input type="number" id="inH"><label class="lbl">Min:</label> <input type="number" id="inL">
-                <div style="grid-column: span 2; color: lime; font-size: 0.9rem; border-bottom: 1px solid #333; margin-top:5px;">SENSOR MID (CCP)</div>
-                <label class="lbl">Max:</label> <input type="number" id="midH"><label class="lbl">Min:</label> <input type="number" id="midL">
-                <div style="grid-column: span 2; color: orange; font-size: 0.9rem; border-bottom: 1px solid #333; margin-top:5px;">SENSOR OUT</div>
-                <label class="lbl">Max:</label> <input type="number" id="outH"><label class="lbl">Min:</label> <input type="number" id="outL">
-            </div>
-            <div style="display:flex; gap:10px; margin-top: 20px;">
-                <button onclick="saveSettings()" style="background:#4ade80; color:#000;">SIMPAN & SYNC</button>
-                <button onclick="closeSettings()" style="background:#ef4444; color:white;">BATAL</button>
-            </div>
-        </div>
-    </div>
-
-    <div id="shiftOverlay" class="login-overlay" style="display: none;">
-        <div class="login-box">
-            <h3><i class="fas fa-clock" style="color:#facc15;"></i> PILIH DURASI SHIFT</h3>
-            <p style="color:#bbb; font-size:0.9rem;">Laporan mengambil data per jam.</p>
-            <div class="interval-options">
-                <button class="interval-btn" onclick="generateShiftReport(5)">5 JAM</button>
-                <button class="interval-btn" onclick="generateShiftReport(7)">7 JAM</button>
-                <button class="interval-btn" onclick="generateShiftReport(10)">10 JAM</button>
-            </div>
-            <button onclick="document.getElementById('shiftOverlay').style.display='none'" style="background:#ef4444; margin-top:20px;">BATAL</button>
+            <button onclick="document.getElementById('shiftOverlay').style.display='none'" class="btn-cancel full-width">BATAL</button>
         </div>
     </div>
 
@@ -97,6 +189,5 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
     <script src="script.js"></script>
-    <script>if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js'));}</script>
 </body>
 </html>
