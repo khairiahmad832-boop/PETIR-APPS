@@ -1,11 +1,11 @@
 {
-  "name": "Sistem PETIR QC V10",
+  "name": "SISTEM PETIR V17 HYPER-PRO",
   "short_name": "PETIR QC",
   "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#0f172a",
   "theme_color": "#0f172a",
-  "description": "Sistem Pemantauan Efektif Terintegrasi Instan Real-time - Indofood CBP",
+  "description": "Industrial Temperature Monitoring System - Indofood CBP",
   "orientation": "portrait",
   "icons": [
     {
